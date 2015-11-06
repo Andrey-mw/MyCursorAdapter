@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">MyCursorAdapter</string>
+    <string name="action_settings">Settings</string>
+</resources>
