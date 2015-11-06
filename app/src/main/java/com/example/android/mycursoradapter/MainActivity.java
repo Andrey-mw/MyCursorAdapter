@@ -1,5 +1,7 @@
 package com.example.android.mycursoradapter;
 
+import android.app.LoaderManager;
+import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -15,13 +17,16 @@ import android.widget.EditText;
 import android.widget.FilterQueryProvider;
 import android.widget.ListView;
 
-public class MainActivity extends AppCompatActivity {
+import com.example.android.mycursoradapter.loader.MyLoader;
+
+public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
 
     private ListView listView;
     private DBQueryHelper dbQueryHelper;
     private EditText search;
     private MyCursorAdapter adapter;
+    private MyLoader loader;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
         dbQueryHelper = new DBQueryHelper(this);
         listView = (ListView) findViewById(R.id.listView);
         search = (EditText) findViewById(R.id.etSearch);
+        getLoaderManager().initLoader(0, null, this);
 
         adapter = new MyCursorAdapter(this, dbQueryHelper.getAll(), true);
         adapter.setFilterQueryProvider(new FilterQueryProvider() {
@@ -64,5 +70,28 @@ public class MainActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         dbQueryHelper.closeDB();
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        loader = new MyLoader(this);
+        return loader;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        adapter.changeCursor(data);
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        loader.reset();
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        adapter.swapCursor(null);
     }
 }
